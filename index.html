@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام سوبر ماركت عبد الله - المبيعات والحسابات</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a202c; color: #fff; min-height: 100vh; }
+        
+        /* ⏳ شاشة الفحص الأولى */
+        .splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1a202c; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
+        .spinner { border: 4px solid rgba(255,255,255,0.1); width: 50px; height: 50px; border-radius: 50%; border-left-color: #4fd1c5; animation: spin 1s linear infinite; margin-bottom: 1rem; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* 🔒 شاشة نظام مغلق (الاشتراك انتهى) */
+        .activation-container { display: none; background: #2d3748; padding: 2.5rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); width: 100%; max-width: 450px; text-align: center; margin: 10vh auto; }
+        .logo { font-size: 4rem; margin-bottom: 1rem; }
+        h1 { font-size: 1.8rem; margin-bottom: 1rem; color: #fc8181; }
+        .subtitle { color: #cbd5e0; margin-bottom: 2rem; font-size: 0.95rem; }
+        .code-input { width: 100%; padding: 1rem; border: 2px solid #4a5568; background: #1a202c; color: #fff; border-radius: 10px; font-size: 1.3rem; text-align: center; letter-spacing: 2px; font-family: monospace; margin-bottom: 1.5rem; }
+        .code-input:focus { outline: none; border-color: #4fd1c5; }
+        .activate-btn { background: linear-gradient(135deg, #319795 0%, #2b6cb0 100%); color: white; border: none; padding: 1rem; border-radius: 10px; font-size: 1.2rem; cursor: pointer; width: 100%; font-weight: bold; transition: transform 0.2s; }
+        .activate-btn:hover { transform: translateY(-2px); }
+        .error-box { background: #fff5f5; color: #9b2c2c; padding: 1rem; border-radius: 8px; margin-top: 1rem; display: none; font-weight: bold; font-size: 0.9rem; }
+        .success-box { background: #f0fff4; color: #22543d; padding: 1rem; border-radius: 8px; margin-top: 1rem; display: none; font-weight: bold; font-size: 0.9rem; }
+
+        /* 🛒 شاشة التطبيق الحقيقي (تظهر فقط لو مرخص) */
+        .main-app { display: none; padding: 1.5rem; }
+        .navbar { background: #2d3748; padding: 1rem 2rem; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .navbar h2 { color: #4fd1c5; font-size: 1.4rem; }
+        .license-badge { background: rgba(79, 209, 197, 0.2); color: #4fd1c5; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: bold; border: 1px solid #4fd1c5; }
+        
+        /* ديزاين كاشير تجريبي كمثال */
+        .pos-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
+        .products-card, .cart-card { background: #2d3748; border-radius: 12px; padding: 1.5rem; min-height: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .product-item { background: #1a202c; padding: 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; border: 1px solid #4a5568; }
+        .add-btn { background: #4fd1c5; color: #1a202c; border: none; padding: 0.3rem 0.8rem; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .checkout-btn { background: #48bb78; color: white; border: none; padding: 1rem; border-radius: 8px; width: 100%; margin-top: 2rem; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div id="splash-screen" class="splash-screen">
+        <div class="spinner"></div>
+        <h3>جاري فتح نظام سوبر ماركت عبد الله...</h3>
+    </div>
+
+    <div id="activation-screen" class="activation-container">
+        <div class="logo">🔒</div>
+        <h1>نظام السوبر ماركت مغلق</h1>
+        <p class="subtitle">عذراً، تفعيل الاشتراك مطلوب للوصول إلى لوحة المبيعات والحسابات الخاصة بالمحل.</p>
+        
+        <input 
+            type="text" 
+            id="activation-code" 
+            class="code-input" 
+            placeholder="XXXX-XXXX-XXXX-XXXX"
+            maxlength="40"
+        >
+        <button class="activate-btn" onclick="handleActivation()">تفعيل وترخيص البرنامج 🔓</button>
+        
+        <div id="error-box" class="error-box"></div>
+        <div id="success-box" class="success-box"></div>
+    </div>
+
+    <div id="main-app" class="main-app">
+        <div class="navbar">
+            <h2>🏪 سوبر ماركت عبد الله - لوحة الكاشير</h2>
+            <div id="days-badge" class="license-badge">⏳ جاري حساب الاشتراك...</div>
+        </div>
+
+        <div class="pos-grid">
+            <div class="products-card">
+                <h3>📦 المنتجات السريعة</h3>
+                <br>
+                <div class="product-item">
+                    <span>كيلو سكر فاخر</span>
+                    <strong>35 ج.م <button class="add-btn">اضافة +</button></strong>
+                </div>
+                <div class="product-item">
+                    <span>زيت خليط 1 لتر</span>
+                    <strong>65 ج.م <button class="add-btn">اضافة +</button></strong>
+                </div>
+                <div class="product-item">
+                    <span>علبة جبنة 500 جرام</span>
+                    <strong>38 ج.م <button class="add-btn">اضافة +</button></strong>
+                </div>
+            </div>
+
+            <div class="cart-card">
+                <h3>🧾 الفاتورة الحالية</h3>
+                <br>
+                <p style="color: #cbd5e0;">لم يتم إضافة منتجات بعد...</p>
+                <hr style="margin: 1rem 0; border-color: #4a5568;">
+                <h4>الإجمالي: 0.00 ج.م</h4>
+                <button class="checkout-btn">حفظ وطباعة الفاتورة 🖨️</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 🔥 1. تثبيت الهوية الرقمية لنسخة سوبر ماركت عبد الله
+        const CLIENT_EMAIL = "abdullah.market@gmail.com"; 
+        const API_BASE_URL = "https://abogad-hel8.vercel.app";
+
+        // 🔄 2. دالة الفحص التلقائي عند الريفريش أو فتح الموقع
+        async function checkLicense() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/codes/check-subscription`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: CLIENT_EMAIL })
+                });
+                
+                const result = await response.json();
+
+                if (response.ok && result.active === true) {
+                    // الاشتراك فعال! افتح السستم فوراً واخفي شاشة القفل
+                    document.getElementById('splash-screen').style.display = 'none';
+                    document.getElementById('activation-screen').style.display = 'none';
+                    document.getElementById('main-app').style.display = 'block';
+                    document.getElementById('days-badge').textContent = `⏳ متبقي في الاشتراك: ${result.remaining_days} يوم`;
+                } else {
+                    // الاشتراك منتهي أو مش متوفر، اظهر شاشة القفل
+                    document.getElementById('splash-screen').style.display = 'none';
+                    document.getElementById('main-app').style.display = 'none';
+                    document.getElementById('activation-screen').style.display = 'block';
+                }
+            } catch (error) {
+                console.error("خطأ اتصال:", error);
+                // في حالة فشل الشبكة تماماً يفضل ترك شاشة التحميل لمنع الاختراق
+                document.getElementById('splash-screen').textContent = "❌ فشل الاتصال بسيرفر الأمان الرئيسي.";
+            }
+        }
+
+        // 🔓 3. دالة معالجة شحن كود جديد (تراكمي)
+        async function handleActivation() {
+            const codeInput = document.getElementById('activation-code').value;
+            const errorBox = document.getElementById('error-box');
+            const successBox = document.getElementById('success-box');
+
+            errorBox.style.display = 'none';
+            successBox.style.display = 'none';
+
+            if (!codeInput.trim()) {
+                errorBox.textContent = "❌ يرجى كتابة كود التفعيل أولاً";
+                errorBox.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/codes/activate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: codeInput.trim() })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || 'فشل عملية التفعيل');
+                }
+
+                // تفعيل ناجح!
+                successBox.textContent = result.message;
+                successBox.style.display = 'block';
+                
+                // انتظر ثانيتين عشان يشوف رسالة النجاح الخضراء ثم اعد فحص وفتح النظام
+                setTimeout(() => {
+                    checkLicense();
+                }, 2000);
+
+            } catch (error) {
+                errorBox.textContent = error.message;
+                errorBox.style.display = 'block';
+            }
+        }
+
+        // تشغيل الفحص صامت فور فتح الصفحة
+        window.onload = checkLicense;
+    </script>
+</body>
+</html>
