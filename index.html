@@ -3,182 +3,294 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام سوبر ماركت عبد الله - المبيعات والحسابات</title>
+    <title>نظام السوبر ماركت الذكي - عبد الله</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a202c; color: #fff; min-height: 100vh; }
-        
-        /* ⏳ شاشة الفحص الأولى */
-        .splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1a202c; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
-        .spinner { border: 4px solid rgba(255,255,255,0.1); width: 50px; height: 50px; border-radius: 50%; border-left-color: #4fd1c5; animation: spin 1s linear infinite; margin-bottom: 1rem; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-        /* 🔒 شاشة نظام مغلق (الاشتراك انتهى) */
-        .activation-container { display: none; background: #2d3748; padding: 2.5rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); width: 100%; max-width: 450px; text-align: center; margin: 10vh auto; }
-        .logo { font-size: 4rem; margin-bottom: 1rem; }
-        h1 { font-size: 1.8rem; margin-bottom: 1rem; color: #fc8181; }
-        .subtitle { color: #cbd5e0; margin-bottom: 2rem; font-size: 0.95rem; }
-        .code-input { width: 100%; padding: 1rem; border: 2px solid #4a5568; background: #1a202c; color: #fff; border-radius: 10px; font-size: 1.3rem; text-align: center; letter-spacing: 2px; font-family: monospace; margin-bottom: 1.5rem; }
-        .code-input:focus { outline: none; border-color: #4fd1c5; }
-        .activate-btn { background: linear-gradient(135deg, #319795 0%, #2b6cb0 100%); color: white; border: none; padding: 1rem; border-radius: 10px; font-size: 1.2rem; cursor: pointer; width: 100%; font-weight: bold; transition: transform 0.2s; }
-        .activate-btn:hover { transform: translateY(-2px); }
-        .error-box { background: #fff5f5; color: #9b2c2c; padding: 1rem; border-radius: 8px; margin-top: 1rem; display: none; font-weight: bold; font-size: 0.9rem; }
-        .success-box { background: #f0fff4; color: #22543d; padding: 1rem; border-radius: 8px; margin-top: 1rem; display: none; font-weight: bold; font-size: 0.9rem; }
-
-        /* 🛒 شاشة التطبيق الحقيقي (تظهر فقط لو مرخص) */
-        .main-app { display: none; padding: 1.5rem; }
-        .navbar { background: #2d3748; padding: 1rem 2rem; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .navbar h2 { color: #4fd1c5; font-size: 1.4rem; }
-        .license-badge { background: rgba(79, 209, 197, 0.2); color: #4fd1c5; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: bold; border: 1px solid #4fd1c5; }
+        /* 🔒 شاشة قفل التفعيل - مخفية افتراضياً وتظهر بالـ JS بناء على الفحص */
+        #activation-screen {
+            display: none;
+            background-color: #1e293b;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        h2 { color: #6366f1; margin-top: 0; }
+        .desc { color: #94a3b8; font-size: 14px; margin-bottom: 20px; }
         
-        /* ديزاين كاشير تجريبي كمثال */
-        .pos-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
-        .products-card, .cart-card { background: #2d3748; border-radius: 12px; padding: 1.5rem; min-height: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .product-item { background: #1a202c; padding: 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; border: 1px solid #4a5568; }
-        .add-btn { background: #4fd1c5; color: #1a202c; border: none; padding: 0.3rem 0.8rem; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .checkout-btn { background: #48bb78; color: white; border: none; padding: 1rem; border-radius: 8px; width: 100%; margin-top: 2rem; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 15px;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            background-color: #0f172a;
+            color: #fff;
+            font-size: 18px;
+            text-align: center;
+            box-sizing: border-box;
+            letter-spacing: 2px;
+        }
+        input:focus { border-color: #6366f1; outline: none; }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        button:hover { background-color: #4f46e5; }
+        button:disabled { background-color: #475569; cursor: not-allowed; }
+
+        .alert { display: none; padding: 12px; margin-top: 15px; border-radius: 8px; font-size: 14px; text-align: right; }
+        #success-box { background-color: #065f46; color: #34d399; border: 1px solid #047857; }
+        #error-box { background-color: #991b1b; color: #f87171; border: 1px solid #b91c1c; }
+        #loading { display: none; color: #fbbf24; margin: 10px 0; font-size: 14px; font-weight: bold; }
+
+        /* 🏪 واجهة البرنامج الحقيقية (تفتح تلقائياً لو المرخص صالح) */
+        #main-app {
+            display: none;
+            width: 90%;
+            max-width: 1000px;
+            background-color: #1e293b;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .badge { background-color: #475569; color: white; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: bold; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .card { background-color: #0f172a; padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #334155; }
+        .card h3 { margin: 0 0 10px 0; color: #94a3b8; font-size: 16px; }
+        .card p { margin: 0; font-size: 24px; font-weight: bold; color: #38bdf8; }
     </style>
 </head>
 <body>
 
-    <div id="splash-screen" class="splash-screen">
-        <div class="spinner"></div>
-        <h3>جاري فتح نظام سوبر ماركت عبد الله...</h3>
-    </div>
-
-    <div id="activation-screen" class="activation-container">
-        <div class="logo">🔒</div>
-        <h1>نظام السوبر ماركت مغلق</h1>
-        <p class="subtitle">عذراً، تفعيل الاشتراك مطلوب للوصول إلى لوحة المبيعات والحسابات الخاصة بالمحل.</p>
+    <div id="activation-screen">
+        <h2>🔒 نظام السوبر ماركت مغلق</h2>
+        <p class="desc">عذراً، تفعيل الاشتراك مطلوب للوصول إلى لوحة المبيعات والحسابات الخاصة بالمحل.</p>
         
-        <input 
-            type="text" 
-            id="activation-code" 
-            class="code-input" 
-            placeholder="XXXX-XXXX-XXXX-XXXX"
-            maxlength="40"
-        >
-        <button class="activate-btn" onclick="handleActivation()">تفعيل وترخيص البرنامج 🔓</button>
+        <input type="text" id="code-input" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off">
         
-        <div id="error-box" class="error-box"></div>
-        <div id="success-box" class="success-box"></div>
-    </div>
-
-    <div id="main-app" class="main-app">
-        <div class="navbar">
-            <h2>🏪 سوبر ماركت عبد الله - لوحة الكاشير</h2>
-            <div id="days-badge" class="license-badge">⏳ جاري حساب الاشتراك...</div>
+        <button id="activate-btn" onclick="activateCode()">تفعيل وترخيص البرنامج</button>
+        
+        <div id="loading">⏳ جاري فحص صلاحية الاشتراك وتمديد الوقت لايف...</div>
+        
+        <div id="success-box" class="alert">
+            <strong id="success-message"></strong>
+            <div id="success-details" style="margin-top: 5px; font-size: 12px;"></div>
         </div>
+        
+        <div id="error-box" class="alert">
+            <strong id="error-message"></strong>
+        </div>
+    </div>
 
-        <div class="pos-grid">
-            <div class="products-card">
-                <h3>📦 المنتجات السريعة</h3>
-                <br>
-                <div class="product-item">
-                    <span>كيلو سكر فاخر</span>
-                    <strong>35 ج.م <button class="add-btn">اضافة +</button></strong>
-                </div>
-                <div class="product-item">
-                    <span>زيت خليط 1 لتر</span>
-                    <strong>65 ج.م <button class="add-btn">اضافة +</button></strong>
-                </div>
-                <div class="product-item">
-                    <span>علبة جبنة 500 جرام</span>
-                    <strong>38 ج.م <button class="add-btn">اضافة +</button></strong>
-                </div>
+    <div id="main-app">
+        <div class="app-header">
+            <h2>🏪 لوحة تحكم سوبر ماركت عبد الله الذكي</h2>
+            <span class="badge">جاري حساب الاشتراك... ⏳</span>
+        </div>
+        
+        <p>مرحباً بك يا هندسة! تم تأكيد صلاحية النظام بنجاح من خادم الأمان، وهذه بيانات متجرك الحالية:</p>
+        <br>
+        
+        <div class="grid">
+            <div class="card">
+                <h3>إجمالي مبيعات اليوم</h3>
+                <p>1,250 ج.م</p>
             </div>
-
-            <div class="cart-card">
-                <h3>🧾 الفاتورة الحالية</h3>
-                <br>
-                <p style="color: #cbd5e0;">لم يتم إضافة منتجات بعد...</p>
-                <hr style="margin: 1rem 0; border-color: #4a5568;">
-                <h4>الإجمالي: 0.00 ج.م</h4>
-                <button class="checkout-btn">حفظ وطباعة الفاتورة 🖨️</button>
+            <div class="card">
+                <h3>المنتجات في المخزن</h3>
+                <p>412 منتج</p>
+            </div>
+            <div class="card">
+                <h3>الطلبات المعلقة</h3>
+                <p>5 طلبات</p>
+            </div>
+            <div class="card">
+                <h3>صافي أرباح الشهر</h3>
+                <p>8,400 ج.م</p>
             </div>
         </div>
     </div>
 
     <script>
-        // 🔥 1. تثبيت الهوية الرقمية لنسخة سوبر ماركت عبد الله
+        // 🔥 1. تثبيت الهوية الرقمية ورابط السيرفر الموحد
         const CLIENT_EMAIL = "abdullah.market@gmail.com"; 
-        const API_BASE_URL = "https://abogad-hel8.vercel.app";
+        const apiBaseUrl = "https://abogad.vercel.app"; // السيرفر الموحد الخاص بك
 
-        // 🔄 2. دالة الفحص التلقائي عند الريفريش أو فتح الموقع
-        async function checkLicense() {
+        // 🔄 2. دالة الفحص التلقائي للاشتراك أول ما الصفحة تفتح (تمنع القفل عند الريفريش)
+        async function checkSubscriptionOnLoad() {
+            const activationScreen = document.getElementById('activation-screen');
+            const mainApp = document.getElementById('main-app');
+            const loadingElement = document.getElementById('loading');
+            const statusBadge = document.querySelector('.badge');
+
             try {
-                const response = await fetch(`${API_BASE_URL}/api/codes/check-subscription`, {
+                loadingElement.style.display = 'block';
+
+                // إرسال طلب صامت للسيرفر بفحص إيميل عبد الله الثابت
+                const response = await fetch(`${apiBaseUrl}/api/codes/check-subscription`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: CLIENT_EMAIL })
                 });
-                
-                const result = await response.json();
 
-                if (response.ok && result.active === true) {
-                    // الاشتراك فعال! افتح السستم فوراً واخفي شاشة القفل
-                    document.getElementById('splash-screen').style.display = 'none';
-                    document.getElementById('activation-screen').style.display = 'none';
-                    document.getElementById('main-app').style.display = 'block';
-                    document.getElementById('days-badge').textContent = `⏳ متبقي في الاشتراك: ${result.remaining_days} يوم`;
+                const data = await response.json();
+
+                if (response.ok && data.active === true) {
+                    // 🎉 الاشتراك فعال! اخفي شاشة القفل وافتح السوبر ماركت فوراً
+                    activationScreen.style.display = 'none';
+                    mainApp.style.display = 'block';
+                    if (statusBadge) {
+                        statusBadge.textContent = `النسخة كاملة - متبقي ${data.remaining_days} يوم ✅`;
+                        statusBadge.style.backgroundColor = '#10b981';
+                    }
                 } else {
-                    // الاشتراك منتهي أو مش متوفر، اظهر شاشة القفل
-                    document.getElementById('splash-screen').style.display = 'none';
-                    document.getElementById('main-app').style.display = 'none';
-                    document.getElementById('activation-screen').style.display = 'block';
+                    // 🔒 الاشتراك منتهي أو مش متوفر، اظهر مربع كتابة الكود
+                    activationScreen.style.display = 'block';
+                    mainApp.style.display = 'none';
                 }
             } catch (error) {
-                console.error("خطأ اتصال:", error);
-                // في حالة فشل الشبكة تماماً يفضل ترك شاشة التحميل لمنع الاختراق
-                document.getElementById('splash-screen').textContent = "❌ فشل الاتصال بسيرفر الأمان الرئيسي.";
+                console.error('❌ خطأ في الاتصال بسيرفر الفحص:', error);
+                activationScreen.style.display = 'block';
+                showError('❌ فشل الاتصال التلقائي بسيرفر الأمان الرئيسي.');
+            } finally {
+                loadingElement.style.display = 'none';
             }
         }
 
-        // 🔓 3. دالة معالجة شحن كود جديد (تراكمي)
-        async function handleActivation() {
-            const codeInput = document.getElementById('activation-code').value;
-            const errorBox = document.getElementById('error-box');
+        // تشغيل الفحص الصامت فور تحميل عناصر الصفحة بالكامل
+        document.addEventListener('DOMContentLoaded', checkSubscriptionOnLoad);
+
+        // 🔓 3. دالة تفعيل شحن كود جديد
+        async function activateCode() {
+            const codeInput = document.getElementById('code-input');
+            const activateBtn = document.getElementById('activate-btn');
+            const loadingElement = document.getElementById('loading');
             const successBox = document.getElementById('success-box');
+            const errorBox = document.getElementById('error-box');
 
-            errorBox.style.display = 'none';
             successBox.style.display = 'none';
+            errorBox.style.display = 'none';
 
-            if (!codeInput.trim()) {
-                errorBox.textContent = "❌ يرجى كتابة كود التفعيل أولاً";
-                errorBox.style.display = 'block';
+            const code = codeInput.value.trim();
+
+            if (!code) {
+                showError('❌ يرجى إدخال كود التفعيل');
+                codeInput.focus();
                 return;
             }
 
+            const cleanCode = code.toUpperCase();
+            codeInput.value = cleanCode;
+
             try {
-                const response = await fetch(`${API_BASE_URL}/api/codes/activate`, {
+                loadingElement.style.display = 'block';
+                activateBtn.disabled = true;
+
+                const response = await fetch(`${apiBaseUrl}/api/codes/activate`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code: codeInput.trim() })
+                    body: JSON.stringify({ code: cleanCode })
                 });
 
-                const result = await response.json();
+                const data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(result.error || 'فشل عملية التفعيل');
+                    throw new Error(data.error || 'فشل تفعيل الكود');
                 }
 
-                // تفعيل ناجح!
-                successBox.textContent = result.message;
-                successBox.style.display = 'block';
-                
-                // انتظر ثانيتين عشان يشوف رسالة النجاح الخضراء ثم اعد فحص وفتح النظام
-                setTimeout(() => {
-                    checkLicense();
-                }, 2000);
+                // نجاح الشحن والتفعيل
+                showSuccess(data.message, data.details);
+                codeInput.value = '';
 
             } catch (error) {
-                errorBox.textContent = error.message;
-                errorBox.style.display = 'block';
+                console.error('❌ خطأ:', error);
+                showError(error.message || 'حدث خطأ أثناء التفعيل');
+            } finally {
+                loadingElement.style.display = 'none';
+                activateBtn.disabled = false;
             }
         }
 
-        // تشغيل الفحص صامت فور فتح الصفحة
-        window.onload = checkLicense;
+        // عرض رسالة النجاح وإعادة الفحص لفتح اللوحة
+        function showSuccess(message, details) {
+            const successBox = document.getElementById('success-box');
+            const successMessage = document.getElementById('success-message');
+            const successDetails = document.getElementById('success-details');
+
+            successMessage.textContent = message;
+            
+            if (details) {
+                successDetails.innerHTML = `
+                    📅 تم شحن المدة وتحديث تاريخ الانتهاء تراكمياً في السيرفر.<br>
+                    📧 الحساب المستفيد: ${CLIENT_EMAIL}
+                `;
+            }
+            successBox.style.display = 'block';
+
+            // ⏳ استراحة ثانيتين عشان العميل يلحق يشوف الرسالة الخضرا، وبعدين السستم يفتح
+            setTimeout(() => {
+                checkSubscriptionOnLoad();
+            }, 2000);
+        }
+
+        // عرض رسالة الخطأ
+        function showError(message) {
+            const errorBox = document.getElementById('error-box');
+            const errorMessage = document.getElementById('error-message');
+
+            errorMessage.textContent = message;
+            errorBox.style.display = 'block';
+        }
+
+        // تفعيل عند الضغط على Enter
+        document.getElementById('code-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                activateCode();
+            }
+        });
+
+        // تنسيق الكود تلقائياً (XXXX-XXXX-XXXX-XXXX) أثناء الكتابة
+        document.getElementById('code-input').addEventListener('input', (e) => {
+            let value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+            
+            if (value.length > 4) value = value.slice(0, 4) + '-' + value.slice(4);
+            if (value.length > 9) value = value.slice(0, 9) + '-' + value.slice(9);
+            if (value.length > 14) value = value.slice(0, 14) + '-' + value.slice(14);
+            
+            e.target.value = value.substring(0, 19);
+        });
     </script>
 </body>
 </html>
