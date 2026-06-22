@@ -116,7 +116,7 @@
 
     <div id="main-app">
         <div class="app-header">
-            <h2 id="app-title">🏪 لوحة تحكم سوبر ماركت عبد الله الذكي</h2>
+            <h2>🏪 لوحة تحكم سوبر ماركت عبد الله الذكي</h2>
             <span class="badge">جاري حساب الاشتراك... ⏳</span>
         </div>
         
@@ -144,14 +144,11 @@
     </div>
 
     <script>
-        // 🔥 1. تثبيت الهوية الرقمية باسم المحل ورابط السيرفر الموحد الفعلي
+        // 🔥 1. تثبيت الهوية الرقمية ورابط السيرفر الموحد (شيلنا الإيميل وحطينا اسم المحل ثابت)
         const CLIENT_NAME = "سوبر ماركت عبد الله"; 
-        const apiBaseUrl = "https://abogad-hel8.vercel.app"; 
+        const apiBaseUrl = "https://abogad.vercel.app"; // السيرفر الموحد الخاص بك
 
-        // تحديث النص في الهيدر تلقائياً باسم المحل
-        document.getElementById('app-title').textContent = `🏪 لوحة تحكم ${CLIENT_NAME}`;
-
-        // 🔄 2. دالة الفحص التلقائي للاشتراك أول ما الصفحة تفتح بناءً على اسم المحل
+        // 🔄 2. دالة الفحص التلقائي للاشتراك أول ما الصفحة تفتح (تمنع القفل عند الريفريش)
         async function checkSubscriptionOnLoad() {
             const activationScreen = document.getElementById('activation-screen');
             const mainApp = document.getElementById('main-app');
@@ -161,7 +158,7 @@
             try {
                 loadingElement.style.display = 'block';
 
-                // إرسال طلب فحص صامت بـ اسم المحل كـ مفتاح وثيقة
+                // إرسال طلب صامت للسيرفر بفحص اسم المحل الثابت للعميل ده
                 const response = await fetch(`${apiBaseUrl}/api/codes/check-subscription`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -195,7 +192,7 @@
         // تشغيل الفحص الصامت فور تحميل عناصر الصفحة بالكامل
         document.addEventListener('DOMContentLoaded', checkSubscriptionOnLoad);
 
-        // 🔓 3. دالة تفعيل شحن كود جديد (ترسل الكود + اسم المحل معاً)
+        // 🔓 3. دالة تفعيل شحن كود جديد
         async function activateCode() {
             const codeInput = document.getElementById('code-input');
             const activateBtn = document.getElementById('activate-btn');
@@ -221,7 +218,7 @@
                 loadingElement.style.display = 'block';
                 activateBtn.disabled = true;
 
-                // 🎯 شحن الكود وربطه باسم المحل في قاعدة البيانات مباشرة
+                // بيبعت الكود مع اسم المحل المتخزن فوق تلقائياً للسيرفر
                 const response = await fetch(`${apiBaseUrl}/api/codes/activate`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
