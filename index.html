@@ -116,7 +116,7 @@
 
     <div id="main-app">
         <div class="app-header">
-            <h2>🏪 لوحة تحكم سوبر ماركت عبد الله الذكي</h2>
+            <h2 id="app-title">🏪 لوحة تحكم سوبر ماركت عبد الله الذكي</h2>
             <span class="badge">جاري حساب الاشتراك... ⏳</span>
         </div>
         
@@ -144,11 +144,14 @@
     </div>
 
     <script>
-        // 🔥 1. المتغير الجديد باسم المحل ورابط السيرفر الفعلي من الصورة
+        // 🔥 1. تثبيت الهوية الرقمية باسم المحل ورابط السيرفر الموحد الفعلي
         const CLIENT_NAME = "سوبر ماركت عبد الله"; 
         const apiBaseUrl = "https://abogad-hel8.vercel.app"; 
 
-        // 🔄 2. دالة الفحص التلقائي للاشتراك أول ما الصفحة تفتح
+        // تحديث النص في الهيدر تلقائياً باسم المحل
+        document.getElementById('app-title').textContent = `🏪 لوحة تحكم ${CLIENT_NAME}`;
+
+        // 🔄 2. دالة الفحص التلقائي للاشتراك أول ما الصفحة تفتح بناءً على اسم المحل
         async function checkSubscriptionOnLoad() {
             const activationScreen = document.getElementById('activation-screen');
             const mainApp = document.getElementById('main-app');
@@ -158,7 +161,7 @@
             try {
                 loadingElement.style.display = 'block';
 
-                // تم تعديل الإرسال هنا ليرسل اسم المحل بدلاً من الإيميل
+                // إرسال طلب فحص صامت بـ اسم المحل كـ مفتاح وثيقة
                 const response = await fetch(`${apiBaseUrl}/api/codes/check-subscription`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -168,6 +171,7 @@
                 const data = await response.json();
 
                 if (response.ok && data.active === true) {
+                    // 🎉 الاشتراك فعال! اخفي شاشة القفل وافتح السوبر ماركت فوراً
                     activationScreen.style.display = 'none';
                     mainApp.style.display = 'block';
                     if (statusBadge) {
@@ -175,6 +179,7 @@
                         statusBadge.style.backgroundColor = '#10b981';
                     }
                 } else {
+                    // 🔒 الاشتراك منتهي أو مش متوفر، اظهر مربع كتابة الكود
                     activationScreen.style.display = 'block';
                     mainApp.style.display = 'none';
                 }
@@ -187,9 +192,10 @@
             }
         }
 
+        // تشغيل الفحص الصامت فور تحميل عناصر الصفحة بالكامل
         document.addEventListener('DOMContentLoaded', checkSubscriptionOnLoad);
 
-        // 🔓 3. دالة تفعيل شحن كود جديد
+        // 🔓 3. دالة تفعيل شحن كود جديد (ترسل الكود + اسم المحل معاً)
         async function activateCode() {
             const codeInput = document.getElementById('code-input');
             const activateBtn = document.getElementById('activate-btn');
@@ -215,7 +221,7 @@
                 loadingElement.style.display = 'block';
                 activateBtn.disabled = true;
 
-                // تم تعديل الإرسال هنا ليرسل الكود + اسم المحل معاً للسيرفر
+                // 🎯 شحن الكود وربطه باسم المحل في قاعدة البيانات مباشرة
                 const response = await fetch(`${apiBaseUrl}/api/codes/activate`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -231,6 +237,7 @@
                     throw new Error(data.error || 'فشل تفعيل الكود');
                 }
 
+                // نجاح الشحن والتفعيل
                 showSuccess(data.message, data.details);
                 codeInput.value = '';
 
@@ -243,6 +250,7 @@
             }
         }
 
+        // عرض رسالة النجاح وإعادة الفحص لفتح اللوحة
         function showSuccess(message, details) {
             const successBox = document.getElementById('success-box');
             const successMessage = document.getElementById('success-message');
@@ -258,11 +266,13 @@
             }
             successBox.style.display = 'block';
 
+            // ⏳ استراحة ثانيتين عشان العميل يلحق يشوف الرسالة الخضرا، وبعدين السستم يفتح
             setTimeout(() => {
                 checkSubscriptionOnLoad();
             }, 2000);
         }
 
+        // عرض رسالة الخطأ
         function showError(message) {
             const errorBox = document.getElementById('error-box');
             const errorMessage = document.getElementById('error-message');
@@ -271,12 +281,14 @@
             errorBox.style.display = 'block';
         }
 
+        // تفعيل عند الضغط على Enter
         document.getElementById('code-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 activateCode();
             }
         });
 
+        // تنسيق الكود تلقائياً (XXXX-XXXX-XXXX-XXXX) أثناء الكتابة
         document.getElementById('code-input').addEventListener('input', (e) => {
             let value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
             
