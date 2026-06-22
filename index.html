@@ -144,11 +144,11 @@
     </div>
 
     <script>
-        // 🔥 1. تثبيت الهوية الرقمية ورابط السيرفر الموحد
-        const CLIENT_EMAIL = "abdullah.market@gmail.com"; 
-        const apiBaseUrl = "https://abogad.vercel.app"; // السيرفر الموحد الخاص بك
+        // 🔥 1. المتغير الجديد باسم المحل ورابط السيرفر الفعلي من الصورة
+        const CLIENT_NAME = "سوبر ماركت عبد الله"; 
+        const apiBaseUrl = "https://abogad-hel8.vercel.app"; 
 
-        // 🔄 2. دالة الفحص التلقائي للاشتراك أول ما الصفحة تفتح (تمنع القفل عند الريفريش)
+        // 🔄 2. دالة الفحص التلقائي للاشتراك أول ما الصفحة تفتح
         async function checkSubscriptionOnLoad() {
             const activationScreen = document.getElementById('activation-screen');
             const mainApp = document.getElementById('main-app');
@@ -158,17 +158,16 @@
             try {
                 loadingElement.style.display = 'block';
 
-                // إرسال طلب صامت للسيرفر بفحص إيميل عبد الله الثابت
+                // تم تعديل الإرسال هنا ليرسل اسم المحل بدلاً من الإيميل
                 const response = await fetch(`${apiBaseUrl}/api/codes/check-subscription`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: CLIENT_EMAIL })
+                    body: JSON.stringify({ client_name: CLIENT_NAME })
                 });
 
                 const data = await response.json();
 
                 if (response.ok && data.active === true) {
-                    // 🎉 الاشتراك فعال! اخفي شاشة القفل وافتح السوبر ماركت فوراً
                     activationScreen.style.display = 'none';
                     mainApp.style.display = 'block';
                     if (statusBadge) {
@@ -176,7 +175,6 @@
                         statusBadge.style.backgroundColor = '#10b981';
                     }
                 } else {
-                    // 🔒 الاشتراك منتهي أو مش متوفر، اظهر مربع كتابة الكود
                     activationScreen.style.display = 'block';
                     mainApp.style.display = 'none';
                 }
@@ -189,7 +187,6 @@
             }
         }
 
-        // تشغيل الفحص الصامت فور تحميل عناصر الصفحة بالكامل
         document.addEventListener('DOMContentLoaded', checkSubscriptionOnLoad);
 
         // 🔓 3. دالة تفعيل شحن كود جديد
@@ -218,10 +215,14 @@
                 loadingElement.style.display = 'block';
                 activateBtn.disabled = true;
 
+                // تم تعديل الإرسال هنا ليرسل الكود + اسم المحل معاً للسيرفر
                 const response = await fetch(`${apiBaseUrl}/api/codes/activate`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code: cleanCode })
+                    body: JSON.stringify({ 
+                        code: cleanCode,
+                        client_name: CLIENT_NAME
+                    })
                 });
 
                 const data = await response.json();
@@ -230,7 +231,6 @@
                     throw new Error(data.error || 'فشل تفعيل الكود');
                 }
 
-                // نجاح الشحن والتفعيل
                 showSuccess(data.message, data.details);
                 codeInput.value = '';
 
@@ -243,7 +243,6 @@
             }
         }
 
-        // عرض رسالة النجاح وإعادة الفحص لفتح اللوحة
         function showSuccess(message, details) {
             const successBox = document.getElementById('success-box');
             const successMessage = document.getElementById('success-message');
@@ -254,18 +253,16 @@
             if (details) {
                 successDetails.innerHTML = `
                     📅 تم شحن المدة وتحديث تاريخ الانتهاء تراكمياً في السيرفر.<br>
-                    📧 الحساب المستفيد: ${CLIENT_EMAIL}
+                    🏪 المحل المستفيد: ${CLIENT_NAME}
                 `;
             }
             successBox.style.display = 'block';
 
-            // ⏳ استراحة ثانيتين عشان العميل يلحق يشوف الرسالة الخضرا، وبعدين السستم يفتح
             setTimeout(() => {
                 checkSubscriptionOnLoad();
             }, 2000);
         }
 
-        // عرض رسالة الخطأ
         function showError(message) {
             const errorBox = document.getElementById('error-box');
             const errorMessage = document.getElementById('error-message');
@@ -274,14 +271,12 @@
             errorBox.style.display = 'block';
         }
 
-        // تفعيل عند الضغط على Enter
         document.getElementById('code-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 activateCode();
             }
         });
 
-        // تنسيق الكود تلقائياً (XXXX-XXXX-XXXX-XXXX) أثناء الكتابة
         document.getElementById('code-input').addEventListener('input', (e) => {
             let value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
             
